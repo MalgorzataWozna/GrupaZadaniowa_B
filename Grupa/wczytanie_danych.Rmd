@@ -12,8 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ## R Markdown
 ```{r}
 library(jsonlite)
-setwd("~/Desktop/GrupaZadaniowa_B/Grupa/")
-dane <- read.csv2("GUS.csv", header=FALSE, comment.char="#")
+
+dane <- read.csv2("GUS.csv", header=FALSE)
 pure_data <-dane[2:31,2:13]
 ```
 
