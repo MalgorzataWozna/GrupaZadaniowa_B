@@ -11,6 +11,35 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 ```{r}
-dane <- read.csv2(file = 'GUS.csv', header = TRUE)
-head(dane)
+library(jsonlite)
+dane <- read.csv2("~/Desktop/GrupaZadaniowa_B/Grupa/GUS.csv", header=FALSE, comment.char="#")
+pure_data <-dane[2:31,2:13]
 ```
+
+```{r}
+pure_inv_data <- pure_data[dim(pure_data)[1]:1, ]
+head(pure_inv_data)
+```
+
+
+
+```{r}
+library(jsonlite)
+data_vec = as.vector(t(pure_inv_data))
+```
+
+```{r}
+d2 = lapply(data_vec, function(x) return(sub(',','.', x)))
+data_vec
+```
+```{r}
+data_vec_with_dot = unlist(d2)
+```
+
+
+```{r}
+num_data_vec = as.numeric(data_vec_with_dot)
+num_data_vec
+```
+
+
