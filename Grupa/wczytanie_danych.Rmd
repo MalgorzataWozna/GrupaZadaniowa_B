@@ -1,0 +1,16 @@
+---
+title: "Wgranie danych"
+author: "Małgorzata Woźna"
+date: "7 maja 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+dane <- read.csv2(file = 'GUS.csv', header = TRUE)
+head(dane)
+```
