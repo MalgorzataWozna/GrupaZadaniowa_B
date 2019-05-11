@@ -44,25 +44,24 @@ num_data_vec
 ```
 ```{r}
 df=data.frame(num_data_vec)
-df
 ```
 Podzielmy nasze dane zbiory uczące i testowe
 
 ```{r}
 test2019=df[(nrow(df)-12):nrow(df),]
-train2019=df[(nrow(df)-120):(nrow(df)-13),]
+train2019=df[1:(nrow(df)-13),]
 ```
 ```{r}
 test2018=df[(nrow(df)-24):(nrow(df)-13),]
-train2018=df[(nrow(df)-132):(nrow(df)-25),]
+train2018=df[1:(nrow(df)-25),]
 ```
 ```{r}
 test2015=df[(nrow(df)-60):(nrow(df)-49),]
-train2015=df[(nrow(df)-168):(nrow(df)-61),]
+train2015=df[1:(nrow(df)-61),]
 ```
 ```{r}
 test2010=df[(nrow(df)-132):(nrow(df)-121),]
-train2010=df[(nrow(df)-240):(nrow(df)-133),]
+train2010=df[1:(nrow(df)-133),]
 ```
 
 
