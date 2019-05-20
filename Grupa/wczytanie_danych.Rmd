@@ -11,6 +11,114 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 ```{r}
-dane <- read.csv2(file = 'GUS.csv', header = TRUE)
-head(dane)
+library(jsonlite)
+
+dane <- read.csv2("GUS.csv", header=FALSE)
+pure_data <-dane[2:31,2:13]
 ```
+
+```{r}
+pure_inv_data <- pure_data[dim(pure_data)[1]:1, ]
+head(pure_inv_data)
+```
+
+
+
+```{r}
+library(jsonlite)
+data_vec = as.vector(t(pure_inv_data))
+```
+
+```{r}
+d2 = lapply(data_vec, function(x) return(sub(',','.', x)))
+data_vec
+```
+```{r}
+data_vec_with_dot = unlist(d2)
+```
+
+
+```{r}
+num_data_vec = as.numeric(data_vec_with_dot)
+num_data_vec
+```
+```{r}
+df=data.frame(num_data_vec)
+```
+Podzielmy nasze dane zbiory uczące i testowe
+
+```{r}
+test2019=df[(nrow(df)-12):nrow(df),]
+train2019=df[1:(nrow(df)-13),]
+```
+```{r}
+test2018=df[(nrow(df)-24):(nrow(df)-13),]
+train2018=df[1:(nrow(df)-25),]
+```
+```{r}
+test2015=df[(nrow(df)-60):(nrow(df)-49),]
+train2015=df[1:(nrow(df)-61),]
+```
+```{r}
+test2010=df[(nrow(df)-132):(nrow(df)-121),]
+train2010=df[1:(nrow(df)-133),]
+```
+
+```{r}
+plot(num_data_vec, type = "l")
+```
+```{r}
+library(dplyr)
+library(forecast)
+frequency(num_data_vec)
+```
+Co oznacza brak sezonowości
+
+```{r}
+sc = ts(num_data_vec, frequency = 1)
+```
+Wykresy ACF i PACF
+
+```{r}
+tsdisplay(sc)
+```
+
+```{r}
+library(zoo)
+srednia_kroczaca=rollmean(sc, 1)
+plot(srednia_kroczaca)
+```
+
+Usuniecie trędu z naszych danych
+```{r}
+Trend = as.ts(rollmean(train2019, 12, fill = c(0,0,0), align = "right"))
+Y = as.ts(train2019 / Trend)
+Y[which(!is.finite(Y))] = NA
+#Y_omitted = ts(na.omit(Y), frequency = 12, start = c(1949, 7))
+plot(Y)
+```
+```{r}
+dAP = diff(sc)
+plot(dAP)
+```
+
+Podzielmy nasze dane zbiory uczące i testowe
+
+```{r}
+test2019=sc[(nrow(sc)-12):nrow(sc),]
+train2019=sc[1:(nrow(sc)-13),]
+```
+```{r}
+test2018=sc[(nrow(sc)-24):(nrow(sc)-13),]
+train2018=sc[1:(nrow(sc)-25),]
+```
+```{r}
+test2015=sc[(nrow(sc)-60):(nrow(sc)-49),]
+train2015=sc[1:(nrow(sc)-61),]
+```
+```{r}
+test2010=sc[(nrow(sc)-132):(nrow(sc)-121),]
+train2010=sc[1:(nrow(sc)-133),]
+```
+
+
