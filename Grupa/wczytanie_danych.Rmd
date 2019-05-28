@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## R Markdown
 ```{r}
 library(jsonlite)
+library(tseries)
 
 dane <- read.csv2("GUS.csv", header=FALSE)
 pure_data <-dane[2:31,2:13]
@@ -45,6 +46,8 @@ num_data_vec
 ```
 ```{r}
 df=data.frame(num_data_vec)
+new_dane=num_data_vec[1:351]
+new_dane
 ```
 
 
@@ -54,17 +57,29 @@ plot(num_data_vec, type = "l")
 ```{r}
 library(dplyr)
 library(forecast)
-frequency(num_data_vec)
+frequency(new_dane)
 ```
 Co oznacza brak sezonowości
 
 ```{r}
-sc = ts(num_data_vec, frequency = 1)
+sc = ts(new_dane, frequency = 1)
+adf.test(sc)
 ```
+```{r}
+new_dane1=diff(new_dane)
+plot(new_dane1, type = "l")
+
+```
+```{r}
+adf.test(new_dane1)
+```
+
+
 Wykresy ACF i PACF
 
+
 ```{r}
-tsdisplay(sc)
+tsdisplay(new_dane1)
 ```
 
 ```{r}
@@ -78,39 +93,50 @@ Usuniecie trędu z naszych danych
 ```{r}
 dAP = diff(sc)
 plot(dAP)
-```
+
 
 Podzielmy nasze dane zbiory uczące i testowe
 ```{r}
-l=length(sc)
-
+l=length(new_dane1)
+l
 ```
 ```{r}
-test2019=window(sc,start=349)
+test2019=window(new_dane1,start=349)
   
-train2019=window(sc,end=348)
+train2019=window(new_dane1,end=348)
   
 test2019
 ```
 ```{r}
-test2018=window(sc,start=337, end=348 )
-train2018=window(sc,end=336)
+test2018=window(new_dane1,start=337, end=348 )
+train2018=window(new_dane1,end=336)
 ```
 ```{r}
-test2015=window(sc,start=301,end=312)
-train2015=window(sc, end=300)
+test2015=window(new_dane1,start=301,end=312)
+train2015=window(new_dane1, end=300)
 ```
 ```{r}
-test2010=window(sc,start=241,end=252)
-train2010=window(sc,end=240)
+test2010=window(new_dane1,start=241,end=252)
+train2010=window(new_dane1,end=240)
 ```
-Dziewczyny poniezej ja nie wiem czy to jest poprawnie jakos nie czuje tego wydaje mi sie ze powinno byc zamiast 12 1 ale wtedy jest linia prosta wiec nie wiem 
+ 
+Box-Cox
+
 ```{r}
-Trend = as.ts(rollmean(train2019, 1, fill = c(0,0,0), align = "right"))
-Y = as.ts(train2019 / Trend)
-Y[which(!is.finite(Y))] = NA
-#Y_omitted = ts(na.omit(Y), frequency = 12, start = c(1949, 7))
-plot(Y)
+
+lambda = BoxCox.lambda(new_dane1, lower = 0, upper = 2)
+lambda
+
+```
+
+```{r}
+y<-BoxCox(new_dane1, lambda)
+plot(y, type = "l")
+```
+
+```{r}
+modelArima = auto.arima(y)
+summary(modelArima)
 ```
 
 
