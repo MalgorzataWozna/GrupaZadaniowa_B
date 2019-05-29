@@ -65,6 +65,8 @@ Co oznacza brak sezonowości
 sc = ts(new_dane, frequency = 1)
 adf.test(sc)
 ```
+Za pomocą różnocowania usuwamy trend z naszych danych
+
 ```{r}
 new_dane1=diff(new_dane)
 plot(new_dane1, type = "l")
@@ -88,11 +90,8 @@ srednia_kroczaca=rollmean(sc, 1)
 plot(srednia_kroczaca)
 ```
 
-Usuniecie trędu z naszych danych
 
-```{r}
-dAP = diff(sc)
-plot(dAP)
+
 
 
 Podzielmy nasze dane zbiory uczące i testowe
@@ -101,23 +100,23 @@ l=length(new_dane1)
 l
 ```
 ```{r}
-test2019=window(new_dane1,start=349)
+test2019=window(sc,start=349)
   
-train2019=window(new_dane1,end=348)
+train2019=window(sc,end=348)
   
 test2019
 ```
 ```{r}
-test2018=window(new_dane1,start=337, end=348 )
-train2018=window(new_dane1,end=336)
+test2018=window(sc,start=337, end=348 )
+train2018=window(sc,end=336)
 ```
 ```{r}
-test2015=window(new_dane1,start=301,end=312)
-train2015=window(new_dane1, end=300)
+test2015=window(sc,start=301,end=312)
+train2015=window(sc, end=300)
 ```
 ```{r}
-test2010=window(new_dane1,start=241,end=252)
-train2010=window(new_dane1,end=240)
+test2010=window(sc,start=241,end=252)
+train2010=window(sc,end=240)
 ```
  
 Box-Cox
@@ -137,6 +136,65 @@ plot(y, type = "l")
 ```{r}
 modelArima = auto.arima(y)
 summary(modelArima)
+```
+Prognoza modelu dla wszystkich danych
+
+```{r}
+pred=forecast(modelArima)
+plot(pred)
+```
+```{r}
+X_hat2019 = forecast(modelArima, h=length(test2019), fan = TRUE)
+plot(X_hat2019)
+```
+```{r}
+model2019=auto.arima(train2019)
+summary(model2019)
+```
+```{r}
+model2018=auto.arima(train2018)
+summary(model2018)
+```
+```{r}
+model2015=auto.arima(train2015)
+summary(model2015)
+```
+```{r}
+model2010=auto.arima(train2010)
+summary(model2015)
+```
+
+```{r}
+X_hat2019 = forecast(model2019, h=length(test2019), fan = TRUE)
+plot(X_hat2019)
+```
+```{r}
+X_hat2018 = forecast(model2018, h=length(test2018), fan = TRUE)
+plot(X_hat2018)
+```
+```{r}
+X_hat2015 = forecast(model2015, h=length(test2015), fan = TRUE)
+plot(X_hat2015)
+```
+```{r}
+X_hat2010 = forecast(model2010, h=length(test2010), fan = TRUE)
+plot(X_hat2010)
+```
+```{r}
+blad2019=mean((X_hat2019$mean-test2019)^2)
+blad2019
+```
+```{r}
+blad2018=mean((X_hat2018$mean-test2018)^2)
+blad2018
+```
+```{r}
+blad2015=mean((X_hat2015$mean-test2015)^2)
+blad2015
+```
+```{r}
+blad2010=mean((X_hat2010$mean-test2010)^2)
+blad2010
 ```
 
 
