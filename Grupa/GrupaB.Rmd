@@ -20,7 +20,6 @@ library(tseries)
 ```
 ```{r}
 df <- read.csv("arsmxn_d.csv")
-
 head(df)
 ```
 ```{r}
@@ -92,7 +91,6 @@ plot(predArima)
 ```
 
 Dołóżmy linie predykcji wybranego modelu do naszego zbioru testowego.
-#"poczytajcie komentarze czy mają sens"
 
 ```{r}
 plot(test, type="l")
@@ -124,13 +122,14 @@ lines(predar1$mean,col="red")
 ##Porównanie błędów średniokwadratowych dla powyższych prgonoz
 
 ```{r}
-blad1=mean((pred$mean-test)^2)
+blad1=mean((predArima$mean-test)^2)
 blad2=mean((predar1$mean-test)^2)
 
 ```
-
 
 ```{r}
 blad1
 blad2
 ```
+
+Zatem model AutoArima jest dokładnijeszy o czym świdaczny mniejszy błąd średniokwadratowy niz w przypadku modelu Ar(1)
