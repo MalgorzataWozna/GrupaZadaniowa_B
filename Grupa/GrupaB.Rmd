@@ -1,6 +1,6 @@
 ---
 title: "Zadanie7"
-author: "Maria Soja"
+author: "Maria Soja" "Weronika Lara" "Małgorzata Woźna" "Patrycja Kolanowska"
 date: "4 06 2019"
 output: html_document
 ---
@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-W naszym zadaniu wgrywamy dane ze strony histdata.com ; wybrałyśmy pare walut EUR/USD z całego roku 2018 oraz z roku bierzącego. 
+W naszym zadaniu wgrywamy dane ze strony https://stooq.pl/ ; wybrałyśmy pare walut ARS/MXN z całego roku 2018 oraz z roku bierzącego do dnia 
 ```{r}
 
 library(dplyr)
@@ -27,73 +27,110 @@ head(df)
 frequency(df)
 ```
 
+Dane są obecnie przedstawone w postaci ramki danych. Zmieniami typ danych żeby móc modelować szeregi czasowe i tworzymy szereg czasowy. 
+
 ```{r}
 sc = ts(df$Otwarcie, frequency = 1)
 date = as.Date(df$Data, format='%Y-%m-%d')
 ```
 
+
 Sprawdzamy jak nasze dane prezentują się na wykresie
+
+
 ```{r}
 plot(date,sc, type = "l")
 ```
-Na wykresie widzimy zdecydowany trend liniowy.
+
+
+Na wykresie widzimy zdecydowany trend liniowy. Sporządzimy wykresy ts, ACF i PACF.
+
+
+```{r}
+x<-ts(df$Otwarcie, frequency = 1)
+tsdisplay(x)
+```
+
+Zbadamy teraz stacjonarność naszego szeregu.
 
 ```{r}
 adf=adf.test(sc)
 adf
 ```
-Ponieważ p-v jest zbuyt wyoskoie musimy zrozniocwac nasz szereg
+
+Po odczytaniu wartości p-value nie możemy odrzucić hipotezy o niestacjonarności szeregu. Zróżnicujemy ten szereg w celu otrzymania informacji o jego stacjonarności. 
 
 ```{r}
 df_d=diff(sc)
-df_d
+adf.test(df_d)
 ```
+
+Po zróżnicowaniu otrzymujemy szereg, na którym możemy tworzyć interesujące nas modele. Narysujmy wykresy ACF i PACF dla zróżnicowanego szeregu.
+
 ```{r}
 tsdisplay(df_d)
 ```
-```{r}
-adf.test(df_d)
-```
-Po zroz nasz szer jest stac
-podzielmy zb test i 
+
+Tworzymy podział na zbiory treningowe i testowe.
 
 ```{r}
 test=window(df_d,start=311)
 train=window(df_d,end =310)
 ```
-model
-```{r}
-model=auto.arima(train)
-summary(model)
-```
-```{r}
 
-pred=forecast(model, h=length(test))
-plot(pred)
+##Model AUTO ARIMA
+
+```{r}
+model_arima=auto.arima(train)
+summary(model_arima)
+
 ```
+
+```{r}
+predArima=forecast(model_arima, h=length(test))
+plot(predArima)
+```
+
+Dołóżmy linie predykcji wybranego modelu do naszego zbioru testowego.
+#"poczytajcie komentarze czy mają sens"
+
+```{r}
+plot(test, type="l")
+lines(predArima$mean,col="red")
+```
+
+
+##Model AR1
+
 ```{r}
 model_ar1=arima(train, c(1,0,0))
 summary(model_ar1)
 ```
+
+
+
 ```{r}
 predar1=forecast(model_ar1,h=length(test))
 plot(predar1)
 ```
-```{r}
-plot(test, type="l")
-lines(pred$mean,col="red")
-```
+
+Dołóżmy linie predycji dla wybranego modelu do zbioru testowego. 
+
 ```{r}
 plot(test, type="l")
 lines(predar1$mean,col="red")
 ```
+
+##Porównanie błędów średniokwadratowych dla powyższych prgonoz
+
 ```{r}
 blad1=mean((pred$mean-test)^2)
-blad1
+blad2=mean((predar1$mean-test)^2)
+
 ```
 
 
 ```{r}
-blad2=mean((predar1$mean-test)^2)
+blad1
 blad2
 ```
