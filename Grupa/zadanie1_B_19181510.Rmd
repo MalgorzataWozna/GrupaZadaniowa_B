@@ -1,0 +1,164 @@
+---
+title: "Wgranie danych"
+author: "Małgorzata Woźna, Maria Soja, Weronika Lara, Patrycja Kolanowska"
+date: "7 maja 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+**Opis projektu**
+W pierwszym zadaniu grupowym zajmiemy się opracowniem danych dotyczących stopy bezrobocia w Polsce. Dane zostały pobrane ze strony https://stat.gov.pl. Utworzymy i porównamy różne modele na dany rok.
+- rok 2019;
+- rok 2018;
+- rok 2015;
+- rok 2010.
+
+
+
+**Wczytanie danych**
+```{r}
+library(jsonlite)
+
+dane <- read.csv2("GUS.csv", header=FALSE)
+pure_data <-dane[2:31,2:13]
+head(pure_data)
+```
+
+```{r}
+pure_inv_data <- pure_data[dim(pure_data)[1]:1, ]
+head(pure_inv_data)
+```
+
+
+
+```{r}
+library(jsonlite)
+data_vec = as.vector(t(pure_inv_data))
+```
+
+```{r}
+d2 = lapply(data_vec, function(x) return(sub(',','.', x)))
+data_vec
+```
+```{r}
+data_vec_with_dot = unlist(d2)
+```
+
+
+```{r}
+num_data_vec = as.numeric(data_vec_with_dot)
+num_data_vec
+```
+```{r}
+df=data.frame(num_data_vec)
+```
+
+
+```{r}
+plot(num_data_vec, type = "l")
+```
+```{r}
+library(dplyr)
+library(forecast)
+frequency(num_data_vec)
+```
+Co oznacza brak sezonowości
+
+```{r}
+sc = ts(num_data_vec, frequency = 1)
+```
+***Wykresy ACF i PACF***
+
+```{r}
+tsdisplay(sc)
+```
+
+```{r}
+library(zoo)
+srednia_kroczaca=rollmean(sc, 1)
+plot(srednia_kroczaca)
+```
+
+Usuniecie trędu z naszych danych
+
+```{r}
+dAP = diff(sc)
+plot(dAP)
+```
+
+Podzielmy nasze dane zbiory uczące i testowe
+```{r}
+l=length(sc)
+
+```
+**Prognoza na rok 2019**
+```{r}
+test2019=window(sc,start=349)
+  
+train2019=window(sc,end=348)
+  
+test2019
+```
+**Prognoza na rok 2018**
+
+```{r}
+test2018=window(sc,start=337, end=348 )
+train2018=window(sc,end=336)
+```
+***Prognoza na rok 2015***
+
+```{r}
+test2015=window(sc,start=301,end=312)
+train2015=window(sc, end=300)
+```
+****Prognoza na rok 2010****
+
+```{r}
+test2010=window(sc,start=241,end=252)
+train2010=window(sc,end=240)
+```
+
+```{r}
+Trend = as.ts(rollmean(train2019, 12, fill = c(0,0,0), align ="center"))
+plot(Trend)
+```
+
+
+```{r}
+Trend = as.ts(rollmean(train2019, 12, fill = c(0,0,0), align ="center"))
+Y = as.ts(train2019 / Trend)
+Y[which(!is.finite(Y))] = NA
+#Y_omitted = ts(na.omit(Y), frequency = 12, start = c(1949, 7))
+plot(Y)
+```
+```{r}
+test2019=window(sc,start=349)
+  
+train2019_2=window(sc,start=289,end=348)
+  
+length(train2019_2)
+```
+```{r}
+test2018=window(sc,start=337, end=348 )
+train2018_2=window(sc,start=277,end=336)
+```
+```{r}
+test2015=window(sc,start=301,end=312)
+train2015_2=window(sc,start = 241, end=300)
+```
+```{r}
+test2010=window(sc,start=241,end=252)
+train2010_2=window(sc,start = 181,end=240)
+```
+```{r}
+Trend2018_2 = as.ts(rollmean(train2018_2, 12, fill = c(0,0,0), align ="center"))
+Y = as.ts(train2018_2 / Trend2018_2)
+Y[which(!is.finite(Y))] = NA
+#Y_omitted = ts(na.omit(Y), frequency = 12, start = c(1949, 7))
+plot(Y)
+```
+```{r}
+plot(Trend2018_2)
+```
