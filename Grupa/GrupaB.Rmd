@@ -1,0 +1,99 @@
+---
+title: "Zadanie7"
+author: "Maria Soja"
+date: "4 06 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+W naszym zadaniu wgrywamy dane ze strony histdata.com ; wybrałyśmy pare walut EUR/USD z całego roku 2018 oraz z roku bierzącego. 
+```{r}
+
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(forecast)
+library(tseries)
+```
+```{r}
+df <- read.csv("arsmxn_d.csv")
+
+head(df)
+```
+```{r}
+frequency(df)
+```
+
+```{r}
+sc = ts(df$Otwarcie, frequency = 1)
+date = as.Date(df$Data, format='%Y-%m-%d')
+```
+
+Sprawdzamy jak nasze dane prezentują się na wykresie
+```{r}
+plot(date,sc, type = "l")
+```
+Na wykresie widzimy zdecydowany trend liniowy.
+
+```{r}
+adf=adf.test(sc)
+adf
+```
+Ponieważ p-v jest zbuyt wyoskoie musimy zrozniocwac nasz szereg
+
+```{r}
+df_d=diff(sc)
+df_d
+```
+```{r}
+tsdisplay(df_d)
+```
+```{r}
+adf.test(df_d)
+```
+Po zroz nasz szer jest stac
+podzielmy zb test i 
+
+```{r}
+test=window(df_d,start=311)
+train=window(df_d,end =310)
+```
+model
+```{r}
+model=auto.arima(train)
+summary(model)
+```
+```{r}
+
+pred=forecast(model, h=length(test))
+plot(pred)
+```
+```{r}
+model_ar1=arima(train, c(1,0,0))
+summary(model_ar1)
+```
+```{r}
+predar1=forecast(model_ar1,h=length(test))
+plot(predar1)
+```
+```{r}
+plot(test, type="l")
+lines(pred$mean,col="red")
+```
+```{r}
+plot(test, type="l")
+lines(predar1$mean,col="red")
+```
+```{r}
+blad1=mean((pred$mean-test)^2)
+blad1
+```
+
+
+```{r}
+blad2=mean((predar1$mean-test)^2)
+blad2
+```
